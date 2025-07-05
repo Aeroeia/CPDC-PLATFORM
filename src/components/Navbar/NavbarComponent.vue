@@ -1,11 +1,13 @@
 <template>
-  <header class="bg-primary flex px-3 md:px-5 lg:px-15 py-3 justify-between relative">
+  <header
+    class="h-18 bg-primary flex px-3 md:px-5 md:h-20 lg:px-15 justify-between relative items-center"
+  >
     <!-- Header Left - Logo & Title -->
     <div>
-      <h1 class="text-2xl md:text-3xl font-semibold text-white sm:mb-0.5 md:mb-1.5">
+      <h1 class="text-xl md:text-2xl font-semibold text-white sm:mb-0.5 md:mb-1">
         广彩数字文化传播平台
       </h1>
-      <span class="text-sm md:text-lg font-semibold text-white"
+      <span class="text-sm md:text-md font-semibold text-white"
         >Canton Porcelation Digital Cultural Platform</span
       >
     </div>
@@ -13,7 +15,7 @@
     <div class="items-center hidden lg:flex">
       <div
         v-for="item of navItem"
-        class="text-xl text-primary-100 px-4 py-2 flex items-center justify-center rounded-sm mr-2 last:mr-0 hover:text-white hover:bg-primary-200 ease-in-out duration-200"
+        class="text-lg text-primary-100 px-4 py-2 flex items-center justify-center rounded-sm mr-2 last:mr-0 hover:text-white hover:bg-primary-200 ease-in-out duration-200"
         :class="selectedItemLink === item.link ? 'text-white bg-primary-500' : ''"
         :key="item.name"
         :title="`前往${item.name}页面`"
@@ -41,7 +43,7 @@
   <Transition name="slide-down">
     <div
       v-if="isMobileMenuOpen"
-      class="w-full absolute top-20 md:top-23.5 visible lg:invisible z-50"
+      class="w-full absolute top-16 md:top-23.5 visible lg:invisible z-50"
     >
       <div class="my-backdrop-blur-lg">
         <div

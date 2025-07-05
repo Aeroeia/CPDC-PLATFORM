@@ -18,7 +18,7 @@
         <img
           :src="image.src"
           :alt="image.alt || `Slide ${index + 1}`"
-          class="w-full h-full object-cover"
+          class="w-full h-full object-cover object-bottom"
           draggable="false"
         />
       </div>
@@ -301,7 +301,7 @@ watch(
 <style scoped>
 .carousel {
   width: 100%;
-  height: 600px;
+  height: calc(100vh - 5rem);
   user-select: none; /* 防止拖动时选中文本 */
   touch-action: pan-y; /* 允许垂直滚动，但水平滑动会被组件处理 */
   cursor: grab; /* 显示抓取光标 */

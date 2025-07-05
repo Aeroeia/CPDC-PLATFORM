@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-100 bg-center bg-cover flex flex-col justify-center items-center w-full bg-gray-200"
+    class="h-80 bg-center bg-cover flex flex-col justify-center items-center w-full bg-gray-200"
     :style="props.backgroundUrl ? `background-image: url(${backgroundUrl})` : ''"
   >
     <h1

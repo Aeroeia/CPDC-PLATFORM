@@ -41,14 +41,14 @@ import { onMounted, ref } from 'vue'
 // 定义FilterItemType接口
 export interface FilterItemType {
   name: string
-  value: string | number
+  value: string | number | undefined
   // subitems?: NavItemType[] // 如果需要支持子项目，可以添加
 }
 
 const isListOpen = ref(false)
 
 const activeItemName = ref('')
-const activeItemValue = ref<string | number>('')
+const activeItemValue = ref<string | number | undefined>('')
 
 const setActiveItem = (item: FilterItemType) => {
   activeItemName.value = item.name

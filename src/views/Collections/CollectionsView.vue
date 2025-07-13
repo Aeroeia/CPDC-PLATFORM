@@ -50,6 +50,10 @@ const router = useRouter()
 
 const duringLists: FilterItemType[] = [
   {
+    name: '全部',
+    value: undefined,
+  },
+  {
     name: '清代康熙末年（1662 — 1722年）——萌芽时期',
     value: 1,
   },
@@ -77,6 +81,10 @@ const duringLists: FilterItemType[] = [
 
 const typeLists: FilterItemType[] = [
   {
+    name: '全部',
+    value: undefined,
+  },
+  {
     name: '大盘',
     value: 1,
   },
@@ -102,19 +110,18 @@ const typeFilterRef = ref<InstanceType<typeof FilterButton>>()
 const pageCount = ref(1)
 
 const getCollectionsList = async () => {
-  const keyword = searchBarRef.value ? searchBarRef.value.serachContent : ''
+  const keyword = searchBarRef.value ? searchBarRef.value.serachContent : undefined
 
-  const type = typeFilterRef.value?.activeItemValue || 0
-  const during = duringFilterRef.value?.activeItemValue || 0
+  const type = typeFilterRef.value?.activeItemValue as number | undefined
+  const during = duringFilterRef.value?.activeItemValue as number | undefined
 
   const res = await getExhibitions(
     keyword,
     pageCount.value,
-    12, // 默认每页12个
-    type as number,
-    during as number,
+    24, // 默认每页24个
+    type,
+    during,
   )
-  console.log(res.data.records)
 
   collectionsList.value = res.data.records
 }

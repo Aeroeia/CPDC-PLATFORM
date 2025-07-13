@@ -103,8 +103,9 @@ defineExpose({
 
 <style>
 em {
-  font-style: normal !important;
-  font-weight: bold !important;
-  padding: 0 2px !important;
+  color: white;
+  font-style: normal;
+  font-weight: bold;
+  padding: 0 2px;
 }
 </style>

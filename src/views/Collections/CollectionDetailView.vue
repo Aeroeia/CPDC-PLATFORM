@@ -52,7 +52,7 @@ const fetchCollectionDetail = async (id: string) => {
         collectionDetail.value.content = collectionDetail.value.content.replace(/\\n/g, '\n')
       }
     } else {
-      console.error('获取瓷器详细信息失败:', res.data.message)
+      console.error('获取瓷器详细信息失败:', res.message)
       collectionDetail.value = null
     }
   } catch (error) {

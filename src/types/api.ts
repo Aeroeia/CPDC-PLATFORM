@@ -27,15 +27,17 @@ export interface VrHallRecord {
 // 获取展厅热点数据
 export interface VrHallDetailResponse {
   code: number;
-  data: VrHallDetailData;
+  data: VrHallDetailData[];
   message: string;
 }
 
 export interface VrHallDetailData {
-  records: VrHallDetailRecord[];
-}
-
-export interface VrHallDetailRecord {
+  /**
+ * 全景图
+ */
+  id: number;
+  exhibitionId: number;
+  url: string;
   image: string;
   pitch: number;
   yaw: number;

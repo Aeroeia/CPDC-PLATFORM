@@ -40,6 +40,12 @@
           >
             清空坐标
           </button>
+          <button
+            id="copyMarkersData"
+            class="bg-[#3498db] text-white border-none py-2 px-3.5 rounded-md cursor-pointer mt-2.5 w-full hover:bg-[#2980b9]"
+          >
+            复制热点数据
+          </button>
         </div>
       </div>
 
@@ -58,6 +64,8 @@
 import { Viewer } from '@photo-sphere-viewer/core'
 import { MarkersPlugin, type MarkerConfig } from '@photo-sphere-viewer/markers-plugin'
 import { onMounted, ref } from 'vue'
+import { getVrHallDetail, getExhibitionDetail } from '@/apis/exhibitionApi'
+import type { VrHallDetailData, ExhibitionDetailData } from '@/types/api'
 
 declare global {
   interface Window {
@@ -118,53 +126,7 @@ function createHotspotElement(isVideo = false) {
 }
 
 // 热点数据
-const markersData = ref<MarkerConfig[]>([
-  {
-    id: 'marker-1',
-    position: { yaw: 0, pitch: 0 },
-    html: createHotspotElement(false).outerHTML,
-    tooltip: '客厅区域',
-    data: {
-      title: '客厅区域',
-      body: '这是一个现代风格的客厅，采用轻奢装修风格，配有高级舒适的沙发和现代化电视墙。空间宽敞明亮，装饰优雅。',
-      type: 'text',
-    },
-  },
-  {
-    id: 'marker-2',
-    position: { yaw: -1.2, pitch: 0.1 },
-    html: createHotspotElement(false).outerHTML,
-    tooltip: '休闲角落',
-    data: {
-      title: '休闲角落',
-      body: '这个角落配有紫色主题墙和精美装饰画，是阅读和放松的理想场所。舒适的座椅和柔和的灯光营造出温馨的氛围。',
-      type: 'text',
-    },
-  },
-  {
-    id: 'marker-3',
-    position: { yaw: 1.5, pitch: 0.2 },
-    html: createHotspotElement(true).outerHTML,
-    tooltip: '视频演示',
-    data: {
-      title: '视频演示区域',
-      body: '点击观看这个区域的详细视频介绍',
-      type: 'video',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    },
-  },
-  {
-    id: 'marker-4',
-    position: { yaw: 5.406732639693606, pitch: 0.15294953766717145 },
-    html: createHotspotElement(false).outerHTML,
-    tooltip: '客厅区域',
-    data: {
-      title: '客厅区域',
-      body: '这是一个现代风格的客厅，采用轻奢装修风格，配有高级舒适的沙发和现代化电视墙。空间宽敞明亮，装饰优雅。',
-      type: 'text',
-    },
-  },
-])
+const markersData = ref<MarkerConfig[]>([])
 
 // 初始化Photo Sphere Viewer
 const initViewer = () => {
@@ -257,7 +219,13 @@ const bindEvents = () => {
       const marker = e.marker
       if (marker.config.data) {
         showHotspotModal(
-          marker.config.data as { title: string; body: string; type: string; videoUrl?: string },
+          marker.config.data as {
+            title: string
+            body: string
+            type: string
+            videoUrl?: string
+            imageUrl?: string
+          },
         )
       }
     }
@@ -285,7 +253,13 @@ const bindEvents = () => {
 }
 
 // 显示热点详情弹窗
-function showHotspotModal(data: { title: string; body: string; type: string; videoUrl?: string }) {
+function showHotspotModal(data: {
+  title: string
+  body: string
+  type: string
+  videoUrl?: string
+  imageUrl?: string
+}) {
   console.log('显示热点详情:', data)
   // 创建模态框
   const modal = document.createElement('div')
@@ -323,6 +297,10 @@ function showHotspotModal(data: { title: string; body: string; type: string; vid
                         <source src="${data.videoUrl}" type="video/mp4">
                         您的浏览器不支持视频播放。
                     </video>
+                `
+  } else if (data.type === 'image' && data.imageUrl) {
+    innerHTML += `
+                    <img src="${data.imageUrl}" alt="${data.title}" class="w-full rounded-md mt-2.5 object-contain max-h-[70vh]" />
                 `
   }
 
@@ -408,10 +386,67 @@ function copyCoordinate(yaw: number, pitch: number) {
     })
 }
 
-onMounted(() => {
+// 复制markersData
+function copyMarkersData() {
+  const text = JSON.stringify(markersData.value, null, 2)
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      alert('热点数据已复制到剪贴板！')
+    })
+    .catch((err) => {
+      console.error('复制热点数据失败:', err)
+      alert('复制热点数据失败，请检查浏览器权限。')
+    })
+}
+
+onMounted(async () => {
   console.log('页面加载完成，开始初始化...')
 
-  initViewer()
+  try {
+    updateStatus('正在加载展厅热点数据...')
+    const vrHallDetailRes = await getVrHallDetail(props.id || 1)
+    const hotSpotData: VrHallDetailData[] = vrHallDetailRes.data
+
+    const markerPromises = hotSpotData.map(async (hotspot) => {
+      let exhibitionDetail: ExhibitionDetailData | null = null
+      if (hotspot.exhibitionId) {
+        try {
+          const exhibitRes = await getExhibitionDetail(hotspot.exhibitionId)
+          exhibitionDetail = exhibitRes.data
+        } catch (exhibitError) {
+          console.error(
+            `Failed to fetch exhibition detail for ID ${hotspot.exhibitionId}:`,
+            exhibitError,
+          )
+        }
+      }
+
+      return {
+        id: `marker-${hotspot.id}`,
+        position: { yaw: hotspot.yaw, pitch: hotspot.pitch },
+        html: createHotspotElement(false).outerHTML,
+        tooltip: exhibitionDetail?.name || '展品热点',
+        data: {
+          title: exhibitionDetail?.title || '未知展品',
+          body: exhibitionDetail?.content || '暂无详细介绍',
+          type: exhibitionDetail?.image ? 'image' : 'text', // Set type to 'image' if image exists
+          imageUrl: exhibitionDetail?.image, // Pass image URL
+        },
+      } as MarkerConfig
+    })
+
+    markersData.value = await Promise.all(markerPromises)
+    updateStatus(`成功加载 ${markersData.value.length} 个热点数据`)
+
+    initViewer()
+  } catch (error) {
+    console.error('加载热点数据失败:', error)
+    if (error instanceof Error) {
+      updateStatus('加载热点数据失败: ' + error.message)
+    }
+    initViewer()
+  }
 
   // Expose copyCoordinate to global scope for onclick in dynamically generated HTML
   window.copyCoordinate = copyCoordinate
@@ -423,6 +458,15 @@ onMounted(() => {
       coordinateHistory.value = []
       updateCoordinateDisplay()
       console.log('坐标历史已清空')
+    })
+  }
+
+  // Copy markers data
+  const copyMarkersBtn = document.getElementById('copyMarkersData')
+  if (copyMarkersBtn) {
+    copyMarkersBtn.addEventListener('click', () => {
+      copyMarkersData()
+      console.log('热点数据已复制')
     })
   }
 

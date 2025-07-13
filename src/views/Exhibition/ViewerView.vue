@@ -7,7 +7,7 @@ import ViewerComponent from '@/components/Viewer/ViewerComponent.vue'
     <ViewerComponent
       :id="1"
       caption="第一展厅"
-      panorama-url="/cpdc-platform/exhibition/panorama/3.png"
+      panorama-url="/cpdc-platform/exhibition/panorama/4.png"
     />
   </div>
 </template>

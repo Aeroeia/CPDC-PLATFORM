@@ -1,6 +1,13 @@
 @import 'tailwindcss';
+@import '@photo-sphere-viewer/core/index.css';
+@import '@photo-sphere-viewer/markers-plugin/index.css';
+
+* {
+  box-sizing: border-box;
+}
 
 @theme {
+  /* primary */
   --color-primary-700: #941206;
   --color-primary-600: #ab4238;
   --color-primary: #c64d41;
@@ -8,4 +15,28 @@
   --color-primary-300: #ea9289;
   --color-primary-200: #eda39b;
   --color-primary-100: #ebc7c3;
+  /* secondary */
+  --color-secondary-600: #95928a;
+  --color-secondary: #c7bab1;
+}
+
+/* 透明磨砂背景 */
+.my-backdrop-blur-lg {
+  background: rgba(148, 18, 6, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* 下拉组件 */
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: max-height 0.5s ease-out;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  max-height: 0;
+  overflow: hidden;
 }

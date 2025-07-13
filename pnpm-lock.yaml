@@ -8,12 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@photo-sphere-viewer/core':
+        specifier: ^5.13.3
+        version: 5.13.3
+      '@photo-sphere-viewer/markers-plugin':
+        specifier: ^5.13.3
+        version: 5.13.3(@photo-sphere-viewer/core@5.13.3)
       '@tailwindcss/vite':
         specifier: ^4.1.6
         version: 4.1.7(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2)(lightningcss@1.30.1))
       '@vueuse/core':
         specifier: ^13.1.0
         version: 13.2.0(vue@3.5.14(typescript@5.8.3))
+      axios:
+        specifier: ^1.10.0
+        version: 1.10.0(debug@4.4.1)
       pinia:
         specifier: ^3.0.1
         version: 3.0.2(typescript@5.8.3)(vue@3.5.14(typescript@5.8.3))
@@ -482,6 +491,14 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@photo-sphere-viewer/core@5.13.3':
+    resolution: {integrity: sha512-6Fjkx2fTUFSmoy6jJxXn+FrwNlMtTi6M8ErEZkQgn7ULenMpIUx6tdFz3l85NM7Br/Rj4CK8IyUo8Le1eI1Fdg==}
+
+  '@photo-sphere-viewer/markers-plugin@5.13.3':
+    resolution: {integrity: sha512-HqiMgSzJr2rDlH4wuOpamblt1zDWv7exgDoMFR2VEAfI9uvdChqg0eLyvIiONP12zaCr/LbVB6YMtmiYwbFX+w==}
+    peerDependencies:
+      '@photo-sphere-viewer/core': 5.13.3
 
   '@pkgr/core@0.2.4':
     resolution: {integrity: sha512-ROFF39F6ZrnzSUEmQQZUar0Jt4xVoP9WnDRdWwF4NNcXs3xBTLgBUDoOwW141y1jP+S8nahIbdxbFC7IShw9Iw==}
@@ -1001,8 +1018,8 @@ packages:
   aws4@1.13.2:
     resolution: {integrity: sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==}
 
-  axios@1.9.0:
-    resolution: {integrity: sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==}
+  axios@1.10.0:
+    resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -2447,6 +2464,9 @@ packages:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
 
+  three@0.175.0:
+    resolution: {integrity: sha512-nNE3pnTHxXN/Phw768u0Grr7W4+rumGg/H6PgeseNJojkJtmeHJfZWi41Gp2mpXl1pg1pf1zjwR4McM1jTqkpg==}
+
   throttleit@1.0.1:
     resolution: {integrity: sha512-vDZpf9Chs9mAdfY046mcPt8fg5QSZr37hEH4TXYBnDF+izxgrbRGUAAaBvIk/fJm9aOFCGFd1EsNg5AZCbnQCQ==}
 
@@ -3136,6 +3156,14 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
+  '@photo-sphere-viewer/core@5.13.3':
+    dependencies:
+      three: 0.175.0
+
+  '@photo-sphere-viewer/markers-plugin@5.13.3(@photo-sphere-viewer/core@5.13.3)':
+    dependencies:
+      '@photo-sphere-viewer/core': 5.13.3
+
   '@pkgr/core@0.2.4': {}
 
   '@polka/url@1.0.0-next.29': {}
@@ -3642,7 +3670,7 @@ snapshots:
 
   aws4@1.13.2: {}
 
-  axios@1.9.0(debug@4.4.1):
+  axios@1.10.0(debug@4.4.1):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.1)
       form-data: 4.0.2
@@ -5115,6 +5143,8 @@ snapshots:
       mkdirp: 3.0.1
       yallist: 5.0.0
 
+  three@0.175.0: {}
+
   throttleit@1.0.1: {}
 
   through@2.3.8: {}
@@ -5317,7 +5347,7 @@ snapshots:
 
   wait-on@8.0.3(debug@4.4.1):
     dependencies:
-      axios: 1.9.0(debug@4.4.1)
+      axios: 1.10.0(debug@4.4.1)
       joi: 17.13.3
       lodash: 4.17.21
       minimist: 1.2.8

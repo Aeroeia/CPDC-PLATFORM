@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  title: string
+  title?: string
   subTitle?: string
   backgroundUrl?: string
   titleColor?: string

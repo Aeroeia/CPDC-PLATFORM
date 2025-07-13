@@ -114,24 +114,3 @@ onMounted(() => {
   })
 })
 </script>
-
-<style scoped>
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: max-height 0.5s ease-out;
-  max-height: 300px;
-  overflow: hidden;
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
-  max-height: 0;
-  overflow: hidden;
-}
-
-.my-backdrop-blur-lg {
-  background: rgba(148, 18, 6, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-</style>

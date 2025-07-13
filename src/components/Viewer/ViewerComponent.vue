@@ -195,51 +195,88 @@ const bindEvents = () => {
     // 添加CSS动画
     const style = document.createElement('style')
     style.textContent = `
-                    @keyframes pulse {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.2); }
-                        100% { transform: scale(1); }
-                    }
-                `
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+    `
     document.head.appendChild(style)
-
-    // 3秒后隐藏状态指示器
-    setTimeout(() => {
-      const indicator = document.getElementById('statusIndicator')
-      if (indicator) {
-        indicator.style.display = 'none'
-      }
-    }, 3000)
   })
 
-  // 标记点击事件
-  markersPlugin?.addEventListener('select-marker', (e) => {
-    console.log('标记点击事件:', e)
-    if (!props.debugMode) {
-      const marker = e.marker
-      if (marker.config.data) {
-        showHotspotModal(
-          marker.config.data as {
-            title: string
-            body: string
-            type: string
-            videoUrl?: string
-            imageUrl?: string
-          },
-        )
-      }
+  // 点击热点事件
+  markersPlugin?.addEventListener('select-marker', (e: any) => {
+    const selectedMarker = e.marker
+    const data = selectedMarker.data
+
+    // 创建模态框
+    const modal = document.createElement('div')
+    modal.className = `
+      fixed top-0 left-0 w-full h-full
+      flex items-center justify-center
+      bg-black/90 z-[9999]
+      p-4
+    `
+
+    // 创建内容容器
+    const content = document.createElement('div')
+    content.className = `
+      relative
+      max-w-[95vw]
+      max-h-[95vh]
+      overflow-hidden
+    `
+
+    // 创建关闭按钮
+    const closeButton = document.createElement('button')
+    closeButton.className = `
+      absolute top-2 right-2
+      text-white/60 hover:text-white
+      bg-black/50 hover:bg-black/70
+      border-none
+      cursor-pointer
+      text-2xl
+      w-10 h-10
+      flex items-center justify-center
+      rounded-full
+      z-10
+    `
+    closeButton.innerHTML = '×'
+    closeButton.onclick = () => modal.remove()
+    content.appendChild(closeButton)
+
+    // 如果有热点图片，显示图片
+    const markerData = markersData.value.find(m => m.id === selectedMarker.id)
+    if (markerData?.data?.imageUrl) {
+      const img = document.createElement('img')
+      img.src = markerData.data.imageUrl
+      img.alt = data.title || '展品图片'
+      img.className = 'max-w-full max-h-[95vh] object-contain'
+      content.appendChild(img)
     }
+
+    modal.appendChild(content)
+    document.getElementById('viewer')?.appendChild(modal)
+
+    // 点击背景关闭
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove()
+      }
+    })
   })
 
-  // 全景图点击事件（用于调试模式）
-  viewer?.addEventListener('click', (e) => {
-    console.log('全景图点击事件:', e)
-    if (props.debugMode) {
-      const data = e.data
-      console.log('调试模式 - 获取坐标:', data)
-      addCoordinate(data.yaw, data.pitch)
-    }
-  })
+  // 调试模式：点击获取坐标
+  if (props.debugMode) {
+    viewer?.addEventListener('click', (e: any) => {
+      if (e.rightClick) return // 忽略右键点击
+
+      const coords = viewer?.getPosition()
+      if (coords) {
+        addCoordinate(coords.yaw, coords.pitch)
+      }
+    })
+  }
 
   // 错误事件
   viewer?.addEventListener('panorama-error', (e: { error: unknown }) => {
@@ -406,17 +443,29 @@ onMounted(async () => {
   try {
     updateStatus('正在加载展厅热点数据...')
     const vrHallDetailRes = await getVrHallDetail(props.id || 1)
-    const hotSpotData: VrHallDetailData[] = vrHallDetailRes.data
+    
+    // 确保数据存在且格式正确
+    if (!vrHallDetailRes.data?.records || !Array.isArray(vrHallDetailRes.data.records)) {
+      throw new Error('热点数据格式不正确')
+    }
+    
+    const hotSpotData = vrHallDetailRes.data.records
+
+    // 记录热点数量
+    console.log('获取到热点数量:', hotSpotData.length)
 
     const markerPromises = hotSpotData.map(async (hotspot) => {
       let exhibitionDetail: ExhibitionDetailData | null = null
+      
       if (hotspot.exhibitionId) {
         try {
           const exhibitRes = await getExhibitionDetail(hotspot.exhibitionId)
-          exhibitionDetail = exhibitRes.data
+          if (exhibitRes.data) {
+            exhibitionDetail = exhibitRes.data
+          }
         } catch (exhibitError) {
           console.error(
-            `Failed to fetch exhibition detail for ID ${hotspot.exhibitionId}:`,
+            `获取展品详情失败 ID ${hotspot.exhibitionId}:`,
             exhibitError,
           )
         }
@@ -424,27 +473,35 @@ onMounted(async () => {
 
       return {
         id: `marker-${hotspot.id}`,
-        position: { yaw: hotspot.yaw, pitch: hotspot.pitch },
+        position: { 
+          yaw: hotspot.yaw || 0,  // 提供默认值
+          pitch: hotspot.pitch || 0 
+        },
         html: createHotspotElement(false).outerHTML,
         tooltip: exhibitionDetail?.name || '展品热点',
         data: {
           title: exhibitionDetail?.title || '未知展品',
           body: exhibitionDetail?.content || '暂无详细介绍',
-          type: exhibitionDetail?.image ? 'image' : 'text', // Set type to 'image' if image exists
-          imageUrl: exhibitionDetail?.image, // Pass image URL
+          type: exhibitionDetail?.image ? 'image' : 'text',
+          imageUrl: exhibitionDetail?.image || hotspot.image, // 如果展品详情没有图片，使用热点图片
         },
       } as MarkerConfig
     })
 
-    markersData.value = await Promise.all(markerPromises)
-    updateStatus(`成功加载 ${markersData.value.length} 个热点数据`)
+    const markers = await Promise.all(markerPromises)
+    markersData.value = markers
+    updateStatus(`成功加载 ${markers.length} 个热点数据`)
+
+    // 设置全景图URL
+    // panoramaUrl.value = vrHallDetailRes.data.url // This line was removed as panoramaUrl is a prop
+    console.log('全景图URL:', props.panoramaUrl) // This line was added to reflect the change
 
     initViewer()
   } catch (error) {
     console.error('加载热点数据失败:', error)
-    if (error instanceof Error) {
-      updateStatus('加载热点数据失败: ' + error.message)
-    }
+    updateStatus('加载热点数据失败: ' + (error instanceof Error ? error.message : '未知错误'))
+    // 即使加载热点失败，也初始化查看器
+    markersData.value = [] // 确保标记数据是空数组而不是undefined
     initViewer()
   }
 
